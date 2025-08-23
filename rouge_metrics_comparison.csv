@@ -1,0 +1,4 @@
+Model,Rouge-1 Before,Rouge-1 After,Rouge-2 Before,Rouge-2 After,RougeL Before,RougeL After
+FlanT5,0.3960,0.0889,0.2658,0.0213,0.3556,0.0693
+Mistral,0.1246,0.1253,0.0156,0.0170,0.0845,0.0875
+DistilBART,0.1711,0.1686,0.0242,0.0214,0.1190,0.1179
