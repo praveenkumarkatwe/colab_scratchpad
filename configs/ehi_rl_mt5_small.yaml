@@ -1,0 +1,112 @@
+# EHI RL Training Configuration for mT5-small
+# Extends base configuration with training-specific settings
+
+# Include base configuration
+_base_: "base.yaml"
+
+# Experiment info
+experiment:
+  name: "ehi_rl_mt5_small"
+  description: "EHI-based RL fine-tuning with mT5-small model"
+  tags: ["ehi", "rl", "mt5", "hindi", "summarization"]
+
+# Model configuration (inherits from base)
+model:
+  name: "google/mt5-small"
+  use_lora: true
+  load_in_8bit: false
+
+# LoRA configuration optimized for mT5
+lora:
+  r: 8
+  lora_alpha: 32
+  lora_dropout: 0.05
+  bias: "none"
+  target_modules: ["q", "v", "k", "o", "wi", "wo"]
+
+# Training configuration
+training:
+  # Optimizer settings
+  lr: 5e-5
+  weight_decay: 0.01
+  warmup_steps: 100
+  
+  # Training dynamics
+  num_epochs: 3
+  train_batch_size: 4
+  eval_batch_size: 8
+  gradient_accumulation_steps: 2
+  max_grad_norm: 1.0
+  
+  # RL-specific settings
+  baseline_momentum: 0.9
+  reward_normalization: true
+  
+  # Logging and evaluation
+  logging_steps: 100
+  eval_steps: 500
+  save_steps: 1000
+  
+  # Data settings
+  max_train_samples: null  # null for all samples
+  max_eval_samples: 1000   # Limit eval for speed
+
+# Generation configuration for RL training
+generation:
+  # Use sampling for RL training
+  do_sample: true
+  top_p: 0.9
+  temperature: 1.0
+  num_beams: 1
+  
+  # Length controls
+  max_new_tokens: 256
+  min_length: 10
+  length_penalty: 1.0
+  no_repeat_ngram_size: 3
+  repetition_penalty: 1.2
+  early_stopping: true
+
+# EHI weights for reward computation
+ehi_weights:
+  w_EF: 1.0   # Entity Faithful (positive reward)
+  w_NH: 1.0   # Negative Hallucination (penalty)
+  w_LF: 1.0   # Lost Faithful (penalty)
+  w_OF: 1.0   # Over-Focus (penalty)
+  w_PH: 0.0   # Positive Hallucination (disabled by default)
+
+# Dataset configuration
+dataset:
+  name: "xlsum"
+  language: "hi" 
+  splits: ["train", "validation"]
+  max_source_length: 1024
+  max_target_length: 256
+
+# Output configuration
+output:
+  dir: "outputs/ehi_rl_mt5_small"
+  save_total_limit: 3  # Keep only last 3 checkpoints
+  save_best: true
+  metric_for_best_model: "EHI"
+  greater_is_better: true
+
+# Wandb logging (optional)
+wandb:
+  enabled: false
+  project: "ehi-hindi-summarization"
+  entity: null
+  name: "ehi_rl_mt5_small"
+  notes: "EHI-based RL fine-tuning experiment"
+
+# Early stopping
+early_stopping:
+  enabled: true
+  patience: 3
+  metric: "EHI"
+  min_delta: 0.001
+
+# Resume training
+resume:
+  enabled: false
+  checkpoint_path: null  # Path to checkpoint to resume from
