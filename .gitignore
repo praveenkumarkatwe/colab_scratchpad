@@ -1,7 +1,10 @@
-# Python cache files
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
+*.so
 
 # Distribution / packaging
 .Python
@@ -42,8 +45,19 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
+# Translations
+*.mo
+*.pot
+
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
 
 # Environment variables
 .env
@@ -70,8 +84,42 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# EHI-specific ignores
+# Training outputs
+outputs/
+checkpoints/
+runs/
+wandb/
+logs/
+*.ckpt
+*.pth
+
+# Data caches
+data/cache/
+data/processed/
+*.arrow
+*.cache
+
+# Model downloads
+models/
+.cache/
+
 # Temporary files
 tmp/
 temp/
 *.tmp
 *.bak
+
+# Legacy files from old repository structure (to be cleaned up)
+# Keep some analysis files that might be useful for reference
+rouge_metrics_comparison.csv
+XSUMDataset_*.json
+Dialogueset_*.json

@@ -1,0 +1,167 @@
+# Evaluation Configuration for EHI System
+# Settings for comprehensive model evaluation
+
+# Include base configuration
+_base_: "base.yaml"
+
+# Evaluation experiment info
+experiment:
+  name: "ehi_evaluation"
+  description: "Comprehensive evaluation with EHI metrics and analysis"
+
+# Model and checkpoint settings
+model:
+  checkpoint_path: null  # Set via CLI or override
+  base_model_name: "google/mt5-small"  # For LoRA models
+
+# Evaluation dataset
+dataset:
+  name: "xlsum"
+  language: "hi"
+  splits: ["test"]  # Focus on test set for evaluation
+  data_file: null   # Optional: custom data file path
+
+# Evaluation settings
+evaluation:
+  # Data limits
+  max_examples: null    # null for all examples
+  batch_size: 8
+  
+  # Metrics to compute
+  metrics:
+    - "EHI"
+    - "EF"           # Entity Faithful
+    - "NH"           # Negative Hallucination
+    - "LF"           # Lost Faithful  
+    - "OF"           # Over-Focus
+    - "PH"           # Positive Hallucination
+    - "Entity_F1"
+    - "rouge1"
+    - "rouge2"
+    - "rougeL"
+  
+  # Analysis options
+  plot_cdfs: true
+  plot_distributions: true
+  plot_correlations: true
+  save_examples: 20      # Number of examples to save for inspection
+  
+  # Statistical analysis
+  compute_significance: true
+  confidence_level: 0.95
+  
+  # CDF plot settings
+  cdf_bins: 100
+  cdf_metrics: ["EHI", "Entity_F1", "rouge1", "rouge2", "rougeL"]
+
+# Generation configuration for evaluation
+generation:
+  # Default: beam search for deterministic results
+  do_sample: false
+  num_beams: 4
+  
+  # Alternative strategies (can be overridden)
+  strategies:
+    beam_search:
+      do_sample: false
+      num_beams: 4
+      length_penalty: 1.0
+    
+    nucleus:
+      do_sample: true
+      top_p: 0.9
+      temperature: 1.0
+      num_beams: 1
+    
+    diverse_beam:
+      do_sample: false
+      num_beams: 4
+      num_beam_groups: 2
+      diversity_penalty: 1.0
+  
+  # Common settings
+  max_new_tokens: 256
+  min_length: 10
+  length_penalty: 1.0
+  no_repeat_ngram_size: 3
+  repetition_penalty: 1.2
+  early_stopping: true
+
+# EHI evaluation weights
+ehi_weights:
+  w_EF: 1.0   # Entity Faithful
+  w_NH: 1.0   # Negative Hallucination
+  w_LF: 1.0   # Lost Faithful
+  w_OF: 1.0   # Over-Focus
+  w_PH: 0.0   # Positive Hallucination (default off)
+
+# NER configuration for evaluation
+ner:
+  use_indicner: true
+  use_stanza: true
+  use_spacy: true
+  entity_types: ["PERSON", "ORG", "LOC", "MISC"]
+  fuzzy_matching: true
+  similarity_threshold: 0.8
+
+# Output configuration
+output:
+  dir: "eval_results"
+  format: ["json", "csv"]  # Output formats
+  
+  # File naming
+  prefix: "evaluation"
+  include_timestamp: true
+  
+  # Plot settings
+  plot_format: "png"
+  plot_dpi: 300
+  plot_style: "seaborn"
+
+# Model comparison settings (for multi-model evaluation)
+comparison:
+  enabled: false
+  models: []  # List of model paths/names
+  baseline_model: null
+  
+  # Comparison metrics
+  primary_metrics: ["EHI", "Entity_F1", "rouge1"]
+  
+  # Statistical testing
+  significance_test: "wilcoxon"  # wilcoxon, ttest
+  multiple_comparisons: "bonferroni"
+
+# Detailed analysis options
+analysis:
+  # Entity-level analysis
+  entity_analysis: true
+  entity_type_breakdown: true
+  
+  # Length-based analysis
+  length_analysis: true
+  length_bins: [0, 50, 100, 200, 500, 1000]
+  
+  # Error analysis
+  error_analysis: true
+  worst_examples: 10
+  best_examples: 10
+  
+  # Hallucination analysis
+  hallucination_analysis: true
+  hallucination_types: ["person", "organization", "location"]
+
+# Performance monitoring
+performance:
+  measure_time: true
+  measure_memory: true
+  log_gpu_usage: true
+
+# Export options
+export:
+  # Human evaluation format
+  human_eval_format: false
+  human_eval_samples: 100
+  
+  # Research paper format
+  latex_tables: true
+  significant_digits: 4
